@@ -1,0 +1,183 @@
+// Game of Pig.cpp : Ch3 #11
+// by Samatar Osman 11/17/16
+
+#include "stdafx.h"  // Comment out or delete this line if you are not using Visual Studio.
+#include <iostream>
+#include <time.h>
+using namespace std;
+
+int rollDice();
+
+bool rollCheck(char);
+bool rollCheck2(char);
+bool gameOn(int, int);
+
+void playerOneTurn(int&, int&, int&, char&);
+void playerTwoTurn(int&, int&, int&);
+void playGame(int&, int&, char&, int&, int&, int&, int&, int&);
+void welcomeText();
+void scoreboard(int, int);
+
+int main()
+{
+	srand(time(NULL));
+
+	welcomeText();
+
+	char rollChar;
+	int roll1,
+		roll2,
+		rollTracker = 0,
+		playerOneScore = 0,
+		playerTwoScore = 0,
+		playerOneTotal = 0,
+		playerTwoTotal = 0;
+
+	playGame(playerOneTotal, playerTwoTotal, rollChar, roll1, roll2, playerOneScore, playerTwoScore, rollTracker);
+	scoreboard(playerOneTotal, playerTwoTotal);
+	
+	cout << endl;
+    return 0;
+}
+
+int rollDice()
+{
+	return (rand() % 6 + 1);
+}
+bool rollCheck(char check)
+{
+	if ((check == 'r') || (check == 'R') || (check == 'x') || (check == 'X'))
+		return true;
+	else
+	{
+		cout << "Error! You must enter \"r\" to roll or \"x\" to exit.  Please try again." << endl << endl;
+		return false;
+	}
+}
+bool rollCheck2(char check)
+{
+	if (((check == 'r') || (check == 'R') || (check == 'h') || (check == 'H')))
+		return true;
+	else
+		return false;
+}
+bool gameOn(int p1s, int p2s)
+{
+	if ((p1s < 100) && (p2s < 100))
+		return true;
+	else
+		return false;
+}
+void playerOneTurn(int &roll1, int &rollTracker, int &playerOneScore, char &rollChar)
+{
+	while ((roll1 >= 2) && (rollChar != 'h') && (rollChar != 'H'))
+	{
+		do
+		{
+			cout << "You rolled a " << roll1 << " enter r to roll again or h to hold: ";
+			cin >> rollChar;
+
+			if ((rollChar == 'h') || (rollChar == 'H'))
+			{
+				rollTracker += roll1;
+			}
+			else if ((rollChar == 'r') || (rollChar == 'R'))
+			{
+				rollTracker += roll1;
+				roll1 = rollDice();
+			}
+			else
+			{
+				cout << "Error!You must enter a \"r\" or \"h\". Try again." << endl << endl;
+			}
+		} while ((!rollCheck2(rollChar)) && (rollChar != 'h') && (rollChar != 'H'));
+	}
+
+	if (roll1 == 1)
+	{
+		cout << "You rolled a 1 that means it is the computers turn." << endl;
+		rollTracker = 0;
+	}
+}
+void playerTwoTurn(int& roll2, int& rollTracker, int& playerTwoScore)
+{
+	rollTracker = 0;
+	while ((roll2 >= 2) && (rollTracker < 20))
+	{
+			if (rollTracker < 20)
+			{
+				cout << "The computer rolled a " << roll2 << " now it's rolling again." << endl;
+				rollTracker += roll2;
+				roll2 = rollDice();
+			}
+			else if (rollTracker >= 20)
+			{
+				rollTracker += roll2;
+				cout << "The computer rolled a " << roll2 << " now it's holding with a score of: " << rollTracker << endl;
+			}
+	}
+
+	if (roll2 == 1)
+	{
+		cout << "The computer rolled a 1. The computer does not get any points this turn." << endl;
+		rollTracker = 0;
+	}
+}
+void playGame(int& playerOneTotal, int& playerTwoTotal, char& rollChar, int& roll1, int& roll2, int& playerOneScore, int& playerTwoScore, int& rollTracker)
+{
+	while (gameOn(playerOneTotal, playerTwoTotal))
+	{
+		do
+		{
+			cout << "Enter r to roll or x to exit: ";
+			cin >> rollChar;
+			if ((rollChar == 'x') || (rollChar == 'X'))
+			{
+				exit(0);
+			}
+		} while (!rollCheck(rollChar));
+
+		if (playerTwoTotal < 100)
+		{
+			roll1 = rollDice();
+			playerOneTurn(roll1, rollTracker, playerOneScore, rollChar);
+			playerOneScore += rollTracker;
+			playerOneTotal += playerOneScore;
+			cout << "\nYour score this round is: " << rollTracker << endl;
+			cout << "Your total score is: " << playerOneTotal << endl << endl;
+			playerOneScore = 0;
+			rollTracker = 0;
+		}
+		if (playerOneTotal < 100)
+		{
+			roll2 = rollDice();
+			playerTwoTurn(roll2, rollTracker, playerTwoScore);
+			playerTwoScore += rollTracker;
+			playerTwoTotal += playerTwoScore;
+			cout << "\nComputer score this round is: " << rollTracker << endl;
+			cout << "Computer total score is: " << playerTwoTotal << endl << endl;
+			playerTwoScore = 0;
+			rollTracker = 0;
+		}
+	}
+}
+void welcomeText()
+{
+	cout << "Welcome to Pig! The object of the game is to score a total of 100 points (or more)\nbefore the other player does. Good luck!"
+		<< endl << endl;
+}
+void scoreboard(int playerOneTotal, int playerTwoTotal)
+{
+	if (playerOneTotal > playerTwoTotal)
+	{
+		cout << "You win! With a score of " << playerOneTotal << " points vs a computer score of " << playerTwoTotal << " points!" << endl;
+	}
+	else if (playerTwoTotal > playerOneTotal)
+	{
+		cout << "You lose! The computer had " << playerTwoTotal << " points while you had " << playerOneTotal << " points." << endl;
+	}
+	else if (playerOneTotal == playerTwoTotal)
+	{
+		cout << "The game ends in a tie! You both had " << playerOneTotal << " points." << endl;
+	}
+}
